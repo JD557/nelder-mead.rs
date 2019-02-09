@@ -4,6 +4,7 @@ use rand::Rng;
 
 use crate::algebra::*;
 use crate::params::*;
+use crate::bounds::*;
 
 pub type Point = Vec<f64>;
 pub type Function = (Fn(&Point) -> f64);
@@ -21,7 +22,7 @@ fn add_point(f: &Function, simplex: Simplex, point: Vec<f64>) -> Simplex {
     new_simplex
 }
 
-fn step(f: &Function, simplex: Simplex, params: &Params) -> Simplex {
+fn step(f: &Function, simplex: Simplex, params: &Params, bounds_vec: &Vec<(f64, f64)>) -> Simplex {
     let n = simplex.len() - 1;
     let x1 = simplex[0].0.clone();
     let fx1 = simplex[0].1;
@@ -35,11 +36,11 @@ fn step(f: &Function, simplex: Simplex, params: &Params) -> Simplex {
     let (_xn, fxn) = simplex[n - 1].clone();
     let (xn1, fxn1) = simplex[n].clone();
 
-    let xr = sum(&x0, &mult(params.alpha, &diff(&x0, &xn1)));
+    let xr = clamp(&sum(&x0, &mult(params.alpha, &diff(&x0, &xn1))), &bounds_vec);
     let fxr = f(&xr);
-    let xe = sum(&x0, &mult(params.gamma, &diff(&xr, &x0)));
+    let xe = clamp(&sum(&x0, &mult(params.gamma, &diff(&xr, &x0))), &bounds_vec);
     let fxe = f(&xe);
-    let xc = sum(&x0, &mult(params.rho, &diff(&xn1, &x0)));
+    let xc = clamp(&sum(&x0, &mult(params.rho, &diff(&xn1, &x0))), &bounds_vec);
     let fxc = f(&xc);
 
     if fx1 <= fxr && fxr < fxn {
@@ -73,12 +74,14 @@ pub fn minimize(
     f: &Function,
     initial_simplex: Simplex,
     params: Params,
+    bounds: Bounds,
     max_iter: u32,
 ) -> (Point, f64) {
+    let bounds_vec = bounds.as_vec();
     let mut curr_simplex = initial_simplex.clone();
     let n = curr_simplex.len() - 1;
     for _ in 0..max_iter {
-        curr_simplex = step(f, curr_simplex, &params);
+        curr_simplex = step(f, curr_simplex, &params, &bounds_vec);
     }
     let x1 = curr_simplex[0].0.clone();
     let fx1 = curr_simplex[0].1;
@@ -123,9 +126,20 @@ mod tests {
     fn minimize_square() {
         let f: &Function = &(|args| args[0] * args[0] + args[1] * args[1] + 5.0);
         let initial_simplex = new_simplex(&f, vec![2.0, 2.0], 0.5);
-        let (point, value) = minimize(f, initial_simplex, Params::default(), 500);
+        let (point, value) = minimize(f, initial_simplex, Params::default(), Bounds::none(2), 500);
         assert_approx_eq!(point[0], 0.0);
         assert_approx_eq!(point[1], 0.0);
         assert_approx_eq!(value, 5.0);
+    }
+
+    #[test]
+    fn minimize_with_bounds() {
+        let f: &Function = &(|args| args[0] + args[1] + 5.0);
+        let bounds = Bounds {min: vec![-1.0, 0.5], max: vec![10.0, 10.0]};
+        let initial_simplex = new_simplex(&f, vec![2.0, 2.0], 0.5);
+        let (point, value) = minimize(f, initial_simplex, Params::default(), bounds, 500);
+        assert_approx_eq!(point[0], -1.0);
+        assert_approx_eq!(point[1], 0.5);
+        assert_approx_eq!(value, 4.5);
     }
 }
