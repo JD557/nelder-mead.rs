@@ -1,8 +1,6 @@
-use crate::simplex::Point;
-
 pub struct Bounds {
-    pub min: Point,
-    pub max: Point,
+    pub min: Vec<f64>,
+    pub max: Vec<f64>,
 }
 
 impl Bounds {
