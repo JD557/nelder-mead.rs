@@ -3,8 +3,8 @@ use rand::rngs::OsRng;
 use rand::Rng;
 
 use crate::algebra::*;
-use crate::params::*;
 use crate::bounds::*;
+use crate::params::*;
 
 pub type Point = Vec<f64>;
 pub type Function = (Fn(&Point) -> f64);
@@ -36,7 +36,10 @@ fn step(f: &Function, simplex: Simplex, params: &Params, bounds_vec: &Vec<(f64, 
     let (_xn, fxn) = simplex[n - 1].clone();
     let (xn1, fxn1) = simplex[n].clone();
 
-    let xr = clamp(&sum(&x0, &mult(params.alpha, &diff(&x0, &xn1))), &bounds_vec);
+    let xr = clamp(
+        &sum(&x0, &mult(params.alpha, &diff(&x0, &xn1))),
+        &bounds_vec,
+    );
     let fxr = f(&xr);
     let xe = clamp(&sum(&x0, &mult(params.gamma, &diff(&xr, &x0))), &bounds_vec);
     let fxe = f(&xe);
@@ -135,7 +138,10 @@ mod tests {
     #[test]
     fn minimize_with_bounds() {
         let f: &Function = &(|args| args[0] + args[1] + 5.0);
-        let bounds = Bounds {min: vec![-1.0, 0.5], max: vec![10.0, 10.0]};
+        let bounds = Bounds {
+            min: vec![-1.0, 0.5],
+            max: vec![10.0, 10.0],
+        };
         let initial_simplex = new_simplex(&f, vec![2.0, 2.0], 0.5);
         let (point, value) = minimize(f, initial_simplex, Params::default(), bounds, 500);
         assert_approx_eq!(point[0], -1.0);

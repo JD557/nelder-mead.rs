@@ -17,7 +17,10 @@ pub fn avg(ps: &[Vec<f64>]) -> Vec<f64> {
     )
 }
 pub fn clamp(p: &Vec<f64>, bounds: &Vec<(f64, f64)>) -> Vec<f64> {
-    p.iter().zip(bounds.iter()).map(|(p, (min, max))| p.max(min.clone()).min(max.clone())).collect()
+    p.iter()
+        .zip(bounds.iter())
+        .map(|(p, (min, max))| p.max(min.clone()).min(max.clone()))
+        .collect()
 }
 
 #[cfg(test)]
@@ -56,7 +59,10 @@ mod tests {
     #[test]
     fn test_clamp() {
         assert_eq!(
-            clamp(&vec![1.0, 2.0, 3.0], &vec![(0.0, 2.0), (1.0, 1.5), (4.0, 5.0)]),
+            clamp(
+                &vec![1.0, 2.0, 3.0],
+                &vec![(0.0, 2.0), (1.0, 1.5), (4.0, 5.0)]
+            ),
             vec![1.0, 1.5, 4.0]
         );
     }

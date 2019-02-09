@@ -2,7 +2,7 @@ use crate::simplex::Point;
 
 pub struct Bounds {
     pub min: Point,
-    pub max: Point
+    pub max: Point,
 }
 
 impl Bounds {
@@ -17,6 +17,10 @@ impl Bounds {
     }
 
     pub fn as_vec(self: &Bounds) -> Vec<(f64, f64)> {
-        self.min.iter().cloned().zip(self.max.iter().cloned()).collect()
+        self.min
+            .iter()
+            .cloned()
+            .zip(self.max.iter().cloned())
+            .collect()
     }
 }

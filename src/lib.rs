@@ -1,13 +1,13 @@
 //! A Nelder-Mead simplex optimizer
 
-pub mod params;
-pub mod bounds;
-mod simplex;
 mod algebra;
+pub mod bounds;
+pub mod params;
+mod simplex;
 
-use crate::simplex::*;
-use crate::params::*;
 use crate::bounds::*;
+use crate::params::*;
+use crate::simplex::*;
 
 pub fn minimize(
     f: &Function,
