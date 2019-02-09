@@ -1,4 +1,4 @@
-//! A [Nelder-Mead method][neldermead] implementation.
+//! A [Nelder-Mead method][neldermead]implementation in Rust.
 //!
 //! Allows fast minimization/maximization of `Vec<f64> -> f64` functions.
 //!
